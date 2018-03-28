@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Funq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ServiceStack;
 
 namespace MVCServiceStack
 {
@@ -23,7 +25,15 @@ namespace MVCServiceStack
         {
             services.AddMvc();
         }
+        public class AppHost : AppHostBase
+        {
+            public AppHost()
+                : base("ServiceStack + .NET Core MVC", typeof(MyServices).Assembly) { }
 
+            public override void Configure(Container container)
+            {
+            }
+        }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
@@ -37,7 +47,14 @@ namespace MVCServiceStack
                 app.UseExceptionHandler("/Home/Error");
             }
 
+           
             app.UseStaticFiles();
+
+            app.UseServiceStack(new AppHost
+            {
+                AppSettings = new NetCoreAppSettings(Configuration)
+            });
+
 
             app.UseMvc(routes =>
             {
